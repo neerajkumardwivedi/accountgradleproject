@@ -13,7 +13,7 @@ public interface AccountsRepository {
 
   void clearAccounts();
 
-  Map<String, Account> setAccount();
+  Map<String, Account> setDemoAccount();
 
   void updateAccount(Account acct);
 

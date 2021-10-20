@@ -18,9 +18,9 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
 	 * Exception thrown in format of http status and message whenever
 	 * AccountNotException is thrown
 	 */
-	@ExceptionHandler(AccountNotFoundException.class)
+	@ExceptionHandler(AccountDoesNotExistException.class)
 	@ResponseStatus(HttpStatus.NOT_FOUND)
-	public ResponseEntity<ErrorMessage> acctNotFoundException(AccountNotFoundException accException) {
+	public ResponseEntity<ErrorMessage> acctNotFoundException(AccountDoesNotExistException accException) {
 
 		ErrorMessage errMessage = new ErrorMessage(HttpStatus.NOT_FOUND.value(), accException.getMessage());
 
@@ -28,4 +28,20 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
 
 		return new ResponseEntity<ErrorMessage>(errMessage, HttpStatus.NOT_FOUND);
 	}
+	
+	/*
+	 * Exception thrown in format of http status and message whenever
+	 * AccountNotException is thrown
+	 */
+	@ExceptionHandler(InvalidAmountException.class)
+	@ResponseStatus(HttpStatus.BAD_REQUEST)
+	public ResponseEntity<ErrorMessage> invalidAmountException(InvalidAmountException accException) {
+
+		ErrorMessage errMessage = new ErrorMessage(HttpStatus.BAD_REQUEST.value(), accException.getMessage());
+
+		// return new ResponseEntity.status(HttpStatus.NOT_FOUND).body(errMessage);
+
+		return new ResponseEntity<ErrorMessage>(errMessage, HttpStatus.BAD_REQUEST);
+	}
+	
 }

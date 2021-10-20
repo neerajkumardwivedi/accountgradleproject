@@ -8,15 +8,12 @@ import java.math.BigDecimal;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import com.db.awmd.challenge.domain.Account;
 import com.db.awmd.challenge.exception.DuplicateAccountIdException;
-import com.db.awmd.challenge.repository.AccountsRepository;
 import com.db.awmd.challenge.repository.AccountsRepositoryInMemory;
 
 @RunWith(SpringRunner.class)
@@ -24,15 +21,12 @@ import com.db.awmd.challenge.repository.AccountsRepositoryInMemory;
 public class AccountsRepositoryInMemoryTest {
 
 	@Autowired
-	private AccountsRepository acctReposObj;
-	
-	@Autowired
 	private AccountsRepositoryInMemory acctReposObjInMemory;
 	
 	@Before
 	public void setUp() throws Exception {
 		
-		acctReposObjInMemory.setAccount();
+		acctReposObjInMemory.setDemoAccount();
 	}
 
 	@Test

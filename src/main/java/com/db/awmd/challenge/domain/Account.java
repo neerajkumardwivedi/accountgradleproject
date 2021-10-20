@@ -1,5 +1,6 @@
 package com.db.awmd.challenge.domain;
 
+import com.db.awmd.challenge.exception.InvalidAmountException;
 import com.db.awmd.challenge.service.AccountsService;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -29,19 +30,6 @@ public class Account {
     this.balance = BigDecimal.ZERO;
   }
 
-  public String getAccountId() {
-	return accountId;
-}
-  
-
-public BigDecimal getBalance() {
-	return balance;
-}
-
-public void setBalance(BigDecimal balance) {
-	this.balance = balance;
-}
-
 @JsonCreator
   public Account(@JsonProperty("accountId") String accountId,
     @JsonProperty("balance") BigDecimal balance) {
@@ -54,10 +42,10 @@ public void setBalance(BigDecimal balance) {
 	public synchronized BigDecimal withdraw(BigDecimal amount, Account acct) {
 		if (amount.compareTo(BigDecimal.ZERO) <0) // withdraw value is negative
 		{
-			throw new ArithmeticException("Error: Withdraw amount is invalid.");
+			throw new InvalidAmountException("Error: Withdraw amount is invalid.");
 
 		}else if(amount.compareTo(acct.getBalance())>0) {
-			throw new ArithmeticException("Error: Insufficient funds.");
+			throw new InvalidAmountException("Error: Insufficient funds.");
 		}
 		 else {
 			 loggerAcct.info("Before withdraw"+acct.getBalance().doubleValue());
@@ -77,7 +65,7 @@ public void setBalance(BigDecimal balance) {
 		
 		if (amount.compareTo(BigDecimal.ZERO) <0) // deposit value is negative
 		{
-			System.out.println("Error: Deposit amount is invalid.");
+			throw new InvalidAmountException("Error: Deposit amount is invalid.");
 
 		} else {
 			loggerAcct.info("Before deposit "+acct.getBalance().doubleValue());

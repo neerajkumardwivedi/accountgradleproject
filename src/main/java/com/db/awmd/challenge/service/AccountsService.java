@@ -1,9 +1,12 @@
 package com.db.awmd.challenge.service;
 
 import com.db.awmd.challenge.domain.Account;
-import com.db.awmd.challenge.exception.AccountNotFoundException;
+import com.db.awmd.challenge.exception.AccountDoesNotExistException;
+import com.db.awmd.challenge.exception.InvalidAmountException;
 import com.db.awmd.challenge.repository.AccountsRepository;
 import com.db.awmd.challenge.repository.AccountsRepositoryInMemory;
+
+import io.vertx.core.json.JsonObject;
 
 import java.math.BigDecimal;
 
@@ -18,8 +21,8 @@ public class AccountsService {
 	@Autowired
 	private final AccountsRepository accountsRepository;
 
-//@Autowired
-//private EmailNotificationService emailNotificationService;
+    @Autowired
+    private EmailNotificationService emailNotificationService;
 
 	@Autowired
 	private AccountsRepositoryInMemory accountsInmemoryObj;
@@ -49,21 +52,29 @@ public class AccountsService {
 	 * account "acctNumber":"345443543","email":"a@gmail.com","balance":"400"
 	 */
 
-	public Account transferAmountBetweenAccounts(String sourceTxnId, String destTxnId, BigDecimal transferAmount) {
+	public JsonObject transferAmountBetweenAccounts(String sourceTxnId, String targetTxnId, BigDecimal transferAmount) {
 
+		JsonObject resultSet = new JsonObject();
+		resultSet.put("isSuccess", false);
 		/*
 		 * Synchronized block so that only one thread can execute the operation of
 		 * withdrawing the amount from source account and depositing in destination
 		 * account is transferring process
+		 * 
 		 */
-		// accountsRepository.setAccount();
+
+		//For testing purpose
+		//accountsRepository.setDemoAccount();
+		
 		Account sourceAccount = accountsRepository.getAccount(sourceTxnId);
 		if (sourceAccount == null) {
-			throw new AccountNotFoundException("Source Account Not found");
+
+			throw new AccountDoesNotExistException("Source Account Not found");
 		}
-		Account destinationAccount = accountsRepository.getAccount(destTxnId);
+		Account destinationAccount = accountsRepository.getAccount(targetTxnId);
 		if (destinationAccount == null) {
-			throw new AccountNotFoundException("Destination Account Not found");
+			throw new AccountDoesNotExistException("Destination Account Not found");
+
 		}
 
 		synchronized (this) {
@@ -72,27 +83,33 @@ public class AccountsService {
 			try {
 
 				logger.info("Before transfer "
-						+ accountsInmemoryObj.getAccounts().get(destTxnId).getBalance().doubleValue());
+						+ accountsInmemoryObj.getAccounts().get(targetTxnId).getBalance().doubleValue());
 				sourceAccount.withdraw(transferAmount, sourceAccount);
 				accountsRepository.updateAccount(sourceAccount);
 
 				destinationAccount.deposit(transferAmount, destinationAccount);
-				;
+
 				accountsRepository.updateAccount(destinationAccount);
 
 				logger.info("After transfer "
-						+ accountsInmemoryObj.getAccounts().get(destTxnId).getBalance().doubleValue());
+						+ accountsInmemoryObj.getAccounts().get(targetTxnId).getBalance().doubleValue());
 
-				// emailNotificationService.notifyAboutTransfer(destinationAccount, "Transferred
-				// amount is" + transferAmount);
-				logger.info("email sent to destination account");
+				 emailNotificationService.notifyAboutTransfer(destinationAccount, "Amount : "+transferAmount +" credited into account "+ destinationAccount.getAccountId());
+          		 logger.info("email sent to destination account");
+				 emailNotificationService.notifyAboutTransfer(sourceAccount, "Amount :"+transferAmount +" debited from account "+ sourceAccount.getAccountId());
+				 logger.info("email sent to source account");
+
+				resultSet.put("isSuccess", true);
+				//For junit test case using balance 
+				resultSet.put("balance", destinationAccount.getBalance().toString());
 			}
 
-			catch (Exception e) {
+			catch (InvalidAmountException e) {
 				logger.error("Exception e {} ", e.getMessage());
+				throw new InvalidAmountException(e.getMessage());
 			}
 		}
-		return destinationAccount;
+		return resultSet;
 
 	}
 }

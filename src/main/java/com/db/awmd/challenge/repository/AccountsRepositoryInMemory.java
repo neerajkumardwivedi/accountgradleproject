@@ -42,8 +42,9 @@ public class AccountsRepositoryInMemory implements AccountsRepository {
 		}
 	}
 
+	/*This is used in Junit Cases*/
 	@Override
-	public Map<String, Account> setAccount() {
+	public Map<String, Account> setDemoAccount() {
 		Account acct1 = new Account("id-123");
 		acct1.setBalance(new BigDecimal("100.25"));
 		Account acct2 = new Account("id-456");

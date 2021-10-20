@@ -9,6 +9,9 @@ import com.db.awmd.challenge.exception.DuplicateAccountIdException;
 import com.db.awmd.challenge.repository.AccountsRepository;
 import com.db.awmd.challenge.repository.AccountsRepositoryInMemory;
 import com.db.awmd.challenge.service.AccountsService;
+
+import io.vertx.core.json.JsonObject;
+
 import java.math.BigDecimal;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -71,7 +74,7 @@ public class AccountsServiceTest {
 		Account srcAccount = new Account(sourceAccountId,new BigDecimal("100.25"));
 		Account destinationAccount = new Account(destAccountId,new BigDecimal("200.234"));
 
-		accountsRepositoryInMemoryObj.setAccount();
+		accountsRepositoryInMemoryObj.setDemoAccount();
 		loggerTestObj.info("Repository Map value " + accountsRepositoryInMemoryObj.getAccounts().toString());
 		loggerTestObj.info("Repository Map value " + accountsRepositoryInMemoryObj.getAccounts().get(destAccountId));
 
@@ -83,9 +86,17 @@ public class AccountsServiceTest {
 			public void run() {
 				for (int i = 1; i <= 3; i++) {
 
-					Account tempAcc = accountsService.transferAmountBetweenAccounts(sourceAccountId, destAccountId,
+					JsonObject resultObj = accountsService.transferAmountBetweenAccounts(sourceAccountId, destAccountId,
 							new BigDecimal("20.53"));
-					concurrentAccounts.putIfAbsent(tempAcc.getAccountId(), tempAcc);
+//					Account tempAcc = accountsService.transferAmountBetweenAccounts(sourceAccountId, destAccountId,
+//							new BigDecimal("20.53"));
+					if(resultObj.containsKey("balance")&& resultObj.getString("balance")!=null) {
+						if(concurrentAccounts.containsKey(destAccountId)) {
+							concurrentAccounts.replace(destAccountId, new Account(destAccountId,new BigDecimal(resultObj.getString("balance"))));
+						}else {							
+							concurrentAccounts.putIfAbsent(destAccountId, new Account(destAccountId,new BigDecimal(resultObj.getString("balance"))));
+						}			
+					}
 
 				}
 			}
