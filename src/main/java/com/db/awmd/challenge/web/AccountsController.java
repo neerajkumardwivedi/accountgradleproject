@@ -29,7 +29,7 @@ public class AccountsController {
 		this.accountsService = accountsService;
 	}
 
-	@PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
+	@PostMapping(path = "/save",consumes = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<Object> createAccount(@RequestBody @Valid Account account) {
 		// log.info("Creating account {}", account);
 

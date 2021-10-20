@@ -1,14 +1,15 @@
 package com.db.awmd.challenge;
 
-import static org.junit.Assert.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppContextSetup;
+
+import java.math.BigDecimal;
+import java.util.Objects;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
@@ -19,8 +20,8 @@ import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilde
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
+import com.db.awmd.challenge.domain.Account;
 import com.db.awmd.challenge.repository.AccountsRepository;
-import com.db.awmd.challenge.repository.AccountsRepositoryInMemory;
 import com.db.awmd.challenge.service.AccountsService;
 
 @RunWith(SpringRunner.class)
@@ -29,7 +30,6 @@ import com.db.awmd.challenge.service.AccountsService;
 public class TransferControllerTest {
 
 	  private MockMvc mockMvc;
-	  private static Logger logger = LoggerFactory.getLogger(TransferControllerTest.class);
 	  
 	  @Autowired
 	  private  AccountsRepository accountsRepositoryObj;
@@ -39,9 +39,6 @@ public class TransferControllerTest {
 
 	  @Autowired
 	  private WebApplicationContext webApplicationContext;
-	  
-		@Autowired
-		private AccountsRepositoryInMemory accountsInmemoryObj;
 
 	  @Before
 	  public void prepareMockMvc() {
@@ -49,13 +46,24 @@ public class TransferControllerTest {
 
 	    // Reset the existing accounts before each test.
 	    accountsService.getAccountsRepository().clearAccounts();
+	    String sourceAccountId = "id-123";
+		String destAccountId = "id-456";
+		
+		Account srcAccount = accountsRepositoryObj.getAccount(sourceAccountId);
+	    Account destinationAccount = accountsRepositoryObj.getAccount(destAccountId);
+	    
+	    if(Objects.isNull(srcAccount)) {
+	    	accountsRepositoryObj.createAccount(new Account(sourceAccountId, new BigDecimal("1000.00")));
+	    }
+	    if(Objects.isNull(destinationAccount)) {	    	
+	    	accountsRepositoryObj.createAccount(new Account(destAccountId, new BigDecimal("2000.00")));
+	    }
+	    
 	  }
 
 	  @Test
 	  public void transfer_Amount_BetweenAccounts() throws Exception  {
 
-		   //setting account values
-		   accountsRepositoryObj.setDemoAccount();
 		    MockHttpServletRequestBuilder builder =
 		              MockMvcRequestBuilders.put("/v1/amount/transfer")
 		                                    .contentType(MediaType.APPLICATION_JSON_VALUE)
@@ -71,9 +79,6 @@ public class TransferControllerTest {
 	  @Test
 	  public void createAccountNotFound() throws Exception {
 
-		   //setting account values
-		   accountsRepositoryObj.setDemoAccount(); 
-		   
 		  MockHttpServletRequestBuilder builder =
 	              MockMvcRequestBuilders.put("/v1/amount/transfer")
 	                                    .contentType(MediaType.APPLICATION_JSON_VALUE)
@@ -91,7 +96,7 @@ public class TransferControllerTest {
 		  MockHttpServletRequestBuilder builder =
 	              MockMvcRequestBuilders.put("/v1/amount/transfer")
 	                                    .contentType(MediaType.APPLICATION_JSON_VALUE)
-	                                    .content("{\"srcAcctId\":\"id-019\",\"amount\":-50.5,\"destAcctId\":\"id-456\"}")
+	                                    .content("{\"srcAcctId\":\"id-123\",\"amount\":-50.5,\"destAcctId\":\"id-456\"}")
 	                                    .accept(MediaType.APPLICATION_JSON)
 	                                    .characterEncoding("UTF-8");
 	    
@@ -102,13 +107,10 @@ public class TransferControllerTest {
 	  @Test
 	  public void createInsufficientAmount() throws Exception {
 
-		 //setting account values
-		   accountsRepositoryObj.setDemoAccount();
-          
 		  MockHttpServletRequestBuilder builder =
 	              MockMvcRequestBuilders.put("/v1/amount/transfer")
 	                                    .contentType(MediaType.APPLICATION_JSON_VALUE)
-	                                    .content("{\"srcAcctId\":\"id-123\",\"amount\":1000,\"destAcctId\":\"id-456\"}")
+	                                    .content("{\"srcAcctId\":\"id-123\",\"amount\":5000,\"destAcctId\":\"id-456\"}")
 	                                    .accept(MediaType.APPLICATION_JSON)
 	                                    .characterEncoding("UTF-8");
 	    

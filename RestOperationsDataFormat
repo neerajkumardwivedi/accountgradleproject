@@ -1,0 +1,39 @@
+SAMPLE REST APIS
+
+
+1) Get Account Id
+Method Type:GET
+URL: http://localhost:18080/v1/accounts/id-123
+
+Response
+{
+    "accountId": "id-123",
+    "balance": 949.50
+} 
+    
+ 2) Save Account
+ Method Type:POST
+URL: http://localhost:18080/v1/accounts/save
+
+Request
+{
+"accountId":"id-456",
+"balance":"2000.00"
+}
+
+Response
+Status- Created
+
+
+3)Transfer Amount
+ Method Type:PUT
+URL: http://localhost:18080/v1/amount/transfer
+Request
+{
+"srcAcctId":"id-1237",
+"destAcctId":"id-456",
+"amount":"50000.5"
+}
+
+Response
+" Amount Transferred successfully"

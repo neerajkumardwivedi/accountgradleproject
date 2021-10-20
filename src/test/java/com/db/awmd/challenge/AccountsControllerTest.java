@@ -44,7 +44,7 @@ public class AccountsControllerTest {
 
 	@Test
 	public void createAccount() throws Exception {
-		this.mockMvc.perform(post("/v1/accounts").contentType(MediaType.APPLICATION_JSON)
+		this.mockMvc.perform(post("/v1/accounts/save").contentType(MediaType.APPLICATION_JSON)
 				.content("{\"accountId\":\"Id-123\",\"balance\":1000}")).andExpect(status().isCreated());
 
 		Account account = accountsService.getAccount("Id-123");
@@ -54,41 +54,41 @@ public class AccountsControllerTest {
 
 	@Test
 	public void createDuplicateAccount() throws Exception {
-		this.mockMvc.perform(post("/v1/accounts").contentType(MediaType.APPLICATION_JSON)
+		this.mockMvc.perform(post("/v1/accounts/save").contentType(MediaType.APPLICATION_JSON)
 				.content("{\"accountId\":\"Id-123\",\"balance\":1000}")).andExpect(status().isCreated());
 
-		this.mockMvc.perform(post("/v1/accounts").contentType(MediaType.APPLICATION_JSON)
+		this.mockMvc.perform(post("/v1/accounts/save").contentType(MediaType.APPLICATION_JSON)
 				.content("{\"accountId\":\"Id-123\",\"balance\":1000}")).andExpect(status().isBadRequest());
 	}
 
 	@Test
 	public void createAccountNoAccountId() throws Exception {
-		this.mockMvc.perform(post("/v1/accounts").contentType(MediaType.APPLICATION_JSON).content("{\"balance\":1000}"))
+		this.mockMvc.perform(post("/v1/accounts/save").contentType(MediaType.APPLICATION_JSON).content("{\"balance\":1000}"))
 				.andExpect(status().isBadRequest());
 	}
 
 	@Test
 	public void createAccountNoBalance() throws Exception {
 		this.mockMvc.perform(
-				post("/v1/accounts").contentType(MediaType.APPLICATION_JSON).content("{\"accountId\":\"Id-123\"}"))
+				post("/v1/accounts/save").contentType(MediaType.APPLICATION_JSON).content("{\"accountId\":\"Id-123\"}"))
 				.andExpect(status().isBadRequest());
 	}
 
 	@Test
 	public void createAccountNoBody() throws Exception {
-		this.mockMvc.perform(post("/v1/accounts").contentType(MediaType.APPLICATION_JSON))
+		this.mockMvc.perform(post("/v1/accounts/save").contentType(MediaType.APPLICATION_JSON))
 				.andExpect(status().isBadRequest());
 	}
 
 	@Test
 	public void createAccountNegativeBalance() throws Exception {
-		this.mockMvc.perform(post("/v1/accounts").contentType(MediaType.APPLICATION_JSON)
+		this.mockMvc.perform(post("/v1/accounts/save").contentType(MediaType.APPLICATION_JSON)
 				.content("{\"accountId\":\"Id-123\",\"balance\":-1000}")).andExpect(status().isBadRequest());
 	}
 
 	@Test
 	public void createAccountEmptyAccountId() throws Exception {
-		this.mockMvc.perform(post("/v1/accounts").contentType(MediaType.APPLICATION_JSON)
+		this.mockMvc.perform(post("/v1/accounts/save").contentType(MediaType.APPLICATION_JSON)
 				.content("{\"accountId\":\"\",\"balance\":1000}")).andExpect(status().isBadRequest());
 	}
 

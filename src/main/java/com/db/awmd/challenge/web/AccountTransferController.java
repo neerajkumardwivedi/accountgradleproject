@@ -18,18 +18,19 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.db.awmd.challenge.domain.RequestDTO;
 import com.db.awmd.challenge.exception.InvalidAmountException;
+import com.db.awmd.challenge.service.AccountTransferService;
 import com.db.awmd.challenge.service.AccountsService;
 
 import io.vertx.core.json.JsonObject;
 
 @RestController
 @RequestMapping("/v1/amount")
-public class TransferController {
+public class AccountTransferController {
 
-	private static Logger logger = LoggerFactory.getLogger(TransferController.class);
+	private static Logger logger = LoggerFactory.getLogger(AccountTransferController.class);
 
 	@Autowired
-	private AccountsService accountsService;
+	private AccountTransferService accountsTransferService;
 
 	/*
 	 * @Description: Transferring amount from one accountid to other
@@ -43,27 +44,20 @@ public class TransferController {
 	public ResponseEntity<Object> transferAmountBetweenAccounts(@RequestBody @Valid RequestDTO reqObj) {
 
 		logger.info("Inside Transfer Amount code");
-
 		BigDecimal transferAmount = reqObj.getAmount();
-		if (reqObj != null) {
+		if (transferAmount.compareTo(BigDecimal.ZERO) < 0) {
+			logger.info("deposit value is negative");
+			throw new InvalidAmountException("Transfer amount should not be negative" + transferAmount);
+		}
+		JsonObject resultObj = accountsTransferService.transferAmountBetweenAccounts(reqObj.getSrcAccId(),
+				reqObj.getDestAcctId(), reqObj.getAmount());
+		if (resultObj.containsKey("isSuccess") && resultObj.getBoolean("isSuccess")) {
 
-			if (transferAmount.compareTo(BigDecimal.ZERO) < 0) {
-				logger.info("deposit value is negative");
-				throw new InvalidAmountException("Transfer amount should not be negative" + transferAmount);
-			}
-			JsonObject resultObj = accountsService.transferAmountBetweenAccounts(reqObj.getSrcAccId(),
-					reqObj.getDestAcctId(), reqObj.getAmount());
-			if (resultObj.containsKey("isSuccess") && resultObj.getBoolean("isSuccess")) {
+			return new ResponseEntity<>("Amount Transferred Successfully", HttpStatus.OK);
 
-				return new ResponseEntity<>("Amount Transferred Successfully", HttpStatus.OK);
-
-			} else {
-				return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-
-			}
 		} else {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
 
-			return new ResponseEntity<>("Missing Parameters values", HttpStatus.BAD_REQUEST);
 		}
 
 	}
