@@ -27,7 +27,7 @@ import com.db.awmd.challenge.service.AccountsService;
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @WebAppConfiguration
-public class TransferControllerTest {
+public class AccountTransferControllerTest {
 
 	  private MockMvc mockMvc;
 	  

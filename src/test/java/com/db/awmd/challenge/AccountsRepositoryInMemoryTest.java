@@ -25,8 +25,7 @@ public class AccountsRepositoryInMemoryTest {
 	
 	@Before
 	public void setUp() throws Exception {
-		
-		acctReposObjInMemory.setDemoAccount();
+
 	}
 
 	@Test
@@ -40,10 +39,11 @@ public class AccountsRepositoryInMemoryTest {
 	
 	@Test
 	public void testCreate_failsOnDuplicateAccount() {
-		String sourceAccountId = "id-123";
+		String sourceAccountId = "id-5678";
 		Account srcAccount = new Account(sourceAccountId,new BigDecimal("100.25"));
 	
 		try {
+			acctReposObjInMemory.createAccount(srcAccount);
 			acctReposObjInMemory.createAccount(srcAccount);
 			fail("Should have failed when adding duplicate account");
 		} catch (DuplicateAccountIdException ex) {
@@ -54,7 +54,8 @@ public class AccountsRepositoryInMemoryTest {
 
 	@Test
 	public void fetch_AccountId() {
-		String sourceAccountId = "id-123";
+		String sourceAccountId = "id-09876";
+		acctReposObjInMemory.createAccount(new Account(sourceAccountId, new BigDecimal("1000.00")));
 		
 		Account accountObj = acctReposObjInMemory.getAccount(sourceAccountId);;
 		assertNotNull(accountObj);
@@ -62,7 +63,8 @@ public class AccountsRepositoryInMemoryTest {
 
 	@Test
 	public void update_AccountBalance() {
-		String sourceAccountId = "id-123";
+		String sourceAccountId = "id-1122";
+		acctReposObjInMemory.createAccount(new Account(sourceAccountId, new BigDecimal("1000.00")));
 		Account srcAccount = new Account(sourceAccountId,new BigDecimal("90.25"));
 		acctReposObjInMemory.updateAccount(srcAccount);
 	    assertThat(acctReposObjInMemory.getAccounts().get(sourceAccountId).getBalance()).isEqualTo(new BigDecimal("90.25"));

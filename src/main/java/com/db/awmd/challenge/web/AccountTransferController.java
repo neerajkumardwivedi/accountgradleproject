@@ -19,7 +19,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.db.awmd.challenge.domain.RequestDTO;
 import com.db.awmd.challenge.exception.InvalidAmountException;
 import com.db.awmd.challenge.service.AccountTransferService;
-import com.db.awmd.challenge.service.AccountsService;
 
 import io.vertx.core.json.JsonObject;
 
