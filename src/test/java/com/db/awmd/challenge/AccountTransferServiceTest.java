@@ -2,6 +2,7 @@ package com.db.awmd.challenge;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
@@ -78,7 +79,7 @@ public class AccountTransferServiceTest {
 
 					JsonObject resultObj = accountsTransferService.transferAmountBetweenAccounts(sourceAccountId,
 							destAccountId, new BigDecimal("1.00"));
-					if (resultObj.containsKey("isSuccess") && resultObj.getBoolean("isSuccess") != null) {
+					if (resultObj.containsKey("isSuccess") && resultObj.getBoolean("isSuccess")) {
 						Account modifiedDestAccObj=accountsRepositoryInMemoryObj.getAccount(destAccountId);
 
 						if (threadOneConcurrentMap.containsKey(destAccountId)) {
@@ -108,7 +109,7 @@ public class AccountTransferServiceTest {
 
 					JsonObject resultObjThread2 = accountsTransferService.transferAmountBetweenAccounts(sourceAccountId,
 							destAccountId, new BigDecimal("2.00"));
-					if (resultObjThread2.containsKey("isSuccess") && resultObjThread2.getBoolean("isSuccess") != null) {
+					if (resultObjThread2.containsKey("isSuccess") && resultObjThread2.getBoolean("isSuccess")) {
 						
 						Account destAccObj=accountsRepositoryInMemoryObj.getAccount(destAccountId);
 						
@@ -214,5 +215,31 @@ public class AccountTransferServiceTest {
 
 	}
 	
-	
+	@Test
+	public void emailSentNotificationTest() {
+
+		boolean isSuccess=false;
+		String sourceAccountId = "id-190";
+		String destAccountId = "id-146";
+		
+	    accountsRepositoryInMemoryObj.createAccount(new Account(sourceAccountId, new BigDecimal("1000.00")));
+	    accountsRepositoryInMemoryObj.createAccount(new Account(destAccountId, new BigDecimal("2000.00")));
+	   
+
+		loggerTestObj.info("Repository Map value " + accountsRepositoryInMemoryObj.getAccounts().toString());
+		loggerTestObj.info("Repository Map value " + accountsRepositoryInMemoryObj.getAccounts().get(destAccountId));
+
+		when(acctReposObj.getAccount(sourceAccountId)).thenReturn(new Account(sourceAccountId, new BigDecimal("1000.00")));
+		when(acctReposObj.getAccount(destAccountId)).thenReturn(new Account(destAccountId, new BigDecimal("2000.00")));
+
+		//if response success is true then it means email is sent to both source and destination accounids
+		JsonObject resultObj=accountsTransferService.transferAmountBetweenAccounts(sourceAccountId, destAccountId, new BigDecimal("100.00"));
+
+		if(resultObj.containsKey("isSuccess") && resultObj.getBoolean("isSuccess")) {
+			isSuccess=resultObj.getBoolean("isSuccess");
+			
+		}
+		assertTrue(isSuccess);	
+	}
+
 }
